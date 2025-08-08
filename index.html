@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Encodeur avec mot-clé</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      background-color: #f4f4f4;
+    }
+    textarea, input, button {
+      font-size: 1em;
+      margin-top: 1em;
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #output {
+      margin-top: 1em;
+      padding: 1em;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔐 Encodeur / Décodeur avec mot-clé</h1>
+
+  <label for="texte">Texte :</label>
+  <textarea id="texte" rows="4" placeholder="Écris ici ton texte..."></textarea>
+
+  <label for="cle">Mot-clé :</label>
+  <input id="cle" type="text" placeholder="Ex : comte">
+
+  <button onclick="encoder()">Encoder</button>
+  <button onclick="decoder()">Décoder</button>
+
+  <div id="output">Résultat ici...</div>
+
+  <script>
+    function genererDecalages(cle) {
+      const n = cle.length;
+      const decalages = [];
+      let base = -1;
+
+      while (decalages.length < 1000) { // Assez pour n'importe quel texte
+        decalages.push(base + n);
+        base = base < 0 ? -base : -(base + 1);
+      }
+
+      return decalages;
+    }
+
+    function codeTexte(texte, cle) {
+      let resultat = '';
+      const decalages = genererDecalages(cle);
+      let indexLettre = 0;
+
+      for (let i = 0; i < texte.length; i++) {
+        const char = texte[i];
+
+        if (char.match(/[a-zA-Z]/)) {
+          const isUpper = char === char.toUpperCase();
+          const base = isUpper ? 'A'.charCodeAt(0) : 'a'.charCodeAt(0);
+          const position = char.charCodeAt(0) - base;
+          const decalage = decalages[indexLettre];
+          const nouvellePosition = (position + decalage + 26) % 26;
+          resultat += String.fromCharCode(base + nouvellePosition);
+          indexLettre++;
+        } else {
+          resultat += char;
+        }
+      }
+
+      return resultat;
+    }
+
+    function decodeTexte(texte, cle) {
+      let resultat = '';
+      const decalages = genererDecalages(cle);
+      let indexLettre = 0;
+
+      for (let i = 0; i < texte.length; i++) {
+        const char = texte[i];
+
+        if (char.match(/[a-zA-Z]/)) {
+          const isUpper = char === char.toUpperCase();
+          const base = isUpper ? 'A'.charCodeAt(0) : 'a'.charCodeAt(0);
+          const position = char.charCodeAt(0) - base;
+          const decalage = decalages[indexLettre];
+          const nouvellePosition = (position - decalage + 26) % 26;
+          resultat += String.fromCharCode(base + nouvellePosition);
+          indexLettre++;
+        } else {
+          resultat += char;
+        }
+      }
+
+      return resultat;
+    }
+
+    function encoder() {
+      const texte = document.getElementById("texte").value;
+      const cle = document.getElementById("cle").value.trim();
+      if (!cle) {
+        alert("Merci de saisir un mot-clé.");
+        return;
+      }
+      const result = codeTexte(texte, cle);
+      document.getElementById("output").textContent = "🔒 Encodé :\n" + result;
+    }
+
+    function decoder() {
+      const texte = document.getElementById("texte").value;
+      const cle = document.getElementById("cle").value.trim();
+      if (!cle) {
+        alert("Merci de saisir un mot-clé.");
+        return;
+      }
+      const result = decodeTexte(texte, cle);
+      document.getElementById("output").textContent = "🔓 Décodé :\n" + result;
+    }
+  </script>
+
+</body>
+</html>
+“Ajout du fichier index.html”
